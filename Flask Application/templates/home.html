@@ -1,0 +1,33 @@
+{% extends "import.html" %} 
+{% block content %}
+
+<div class="container" style="margin-top: 80px;">
+    <div class="text-center mb-5">
+        <h1 style="font-size: 3rem; font-weight: 700;">AI DIAGNOSTIC HUB</h1>
+        <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7);">Select a neural network module to begin analysis</p>
+    </div>
+
+    <div class="row justify-content-center gap-4">
+        
+        <div class="col-md-3 glass-card text-center" onclick="window.location.href='/classification_page'" style="cursor: pointer;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🔍</div>
+            <h3 style="color: #00f2ff;">Classification</h3>
+            <p style="color: rgba(255,255,255,0.6);">Detect presence of Pneumonia using Deep Learning.</p>
+        </div>
+
+        <div class="col-md-3 glass-card text-center" onclick="window.location.href='/lung_seg_page'" style="cursor: pointer;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🫁</div>
+            <h3 style="color: #00ff88;">Lung Segmentation</h3>
+            <p style="color: rgba(255,255,255,0.6);">Isolate and analyze healthy lung capacity (Air regions).</p>
+        </div>
+
+        <div class="col-md-3 glass-card text-center" onclick="window.location.href='/infection_seg_page'" style="cursor: pointer;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🦠</div>
+            <h3 style="color: #ff0055;">Infection Map</h3>
+            <p style="color: rgba(255,255,255,0.6);">Localize and highlight specific disease patterns.</p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

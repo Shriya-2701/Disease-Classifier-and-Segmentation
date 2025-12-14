@@ -1,0 +1,106 @@
+{% extends "import.html" %} 
+{% block content %}
+
+<center>
+<br><h2>PNEUMONIA DETECTION & VISUALIZATION</h2><br>
+
+    <form id="upload-file" method="post" enctype="multipart/form-data">
+         <input type="file" name="file" class="btn btn-success" id="imageUpload" accept=".png, .jpg, .jpeg">
+    </form>
+
+    <div class="container" style="margin-top: 50px;">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="image-section" style="display:none;">
+                     <h4>Original X-Ray</h4>
+                     <img id="imagePreview" class="img-responsive" src="#" style="width:300px; height:300px; border: 2px solid black;"/><br><br>
+                     <div>
+                        <button type="button" class="btn btn-info btn-lg " id="btn-predict">Analyze Image</button>
+                     </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="result-section" style="display:none;">
+                    <h4>Analysis Result</h4>
+                    <h3 id="result" style="color: red; font-weight: bold;">
+                        <span> </span>
+                    </h3>
+                    <div id="heatmap-container" style="display:none;">
+                        <p><strong>AI Localization (Heatmap):</strong></p>
+                        <img id="heatmapPreview" src="#" style="width:300px; height:300px; border: 2px solid red;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader" style="display:none;"></div>
+
+</center><br><br>
+
+<script>
+$(document).ready(function () {
+    // Init
+    $('.image-section').hide();
+    $('.loader').hide();
+    $('.result-section').hide();
+
+    // Upload Preview
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr('src', e.target.result);
+                $('#imagePreview').hide();
+                $('#imagePreview').fadeIn(650);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#imageUpload").change(function () {
+        $('.image-section').show();
+        $('.result-section').hide();
+        $('#btn-predict').show();
+        $('#result').text('');
+        $('#result').hide();
+        readURL(this);
+    });
+
+    // Predict
+    $('#btn-predict').click(function () {
+        var form_data = new FormData($('#upload-file')[0]);
+
+        // Show loading animation
+        $(this).hide();
+        $('.loader').show();
+
+        // Make prediction by calling api /predict
+        $.ajax({
+            type: 'POST',
+            url: '/predict',
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            async: true,
+            success: function (data) {
+                // Get and display the result
+                $('.loader').hide();
+                $('.result-section').fadeIn(600);
+                
+                // Show text
+                $('#result').fadeIn(600);
+                $('#result').text('Diagnosis: ' + data.result);
+
+                // Show Heatmap
+                $('#heatmap-container').show();
+                $('#heatmapPreview').attr('src', data.heatmap_url);
+                console.log('Success!');
+            },
+        });
+    });
+});
+</script>
+
+{% endblock %}

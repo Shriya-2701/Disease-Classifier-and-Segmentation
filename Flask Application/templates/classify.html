@@ -1,0 +1,64 @@
+{% extends "import.html" %} 
+{% block content %}
+
+<div class="loader-container">
+    <div class="loader"></div>
+    <div class="loading-text">Analyzing X-Ray Pattern...</div>
+</div>
+
+<div class="container" style="margin-top: 50px;">
+    <a href="/" style="color: rgba(255,255,255,0.5); text-decoration: none;">← Return to Hub</a>
+    
+    <div class="glass-card mt-4 p-5 text-center">
+        <h2 style="color: #00f2ff; margin-bottom: 30px;">Module 1: Disease Classification</h2>
+        
+        <form id="upload-file" method="post" enctype="multipart/form-data">
+            <label class="btn-file">
+                <span style="font-size: 2rem;">📂</span><br>
+                <span>Click to Upload X-Ray Image</span>
+                <input type="file" name="file" id="imageUpload" accept=".png, .jpg, .jpeg" style="display: none;">
+            </label>
+        </form>
+
+        <div class="image-section mt-4" style="display:none;">
+            <img id="imagePreview" class="result-img" src="#" style="width: 250px; height: 250px; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); margin-bottom: 20px;">
+            <br>
+            <button type="button" class="btn-custom" id="btn-predict">Run Diagnosis</button>
+        </div>
+
+        <div id="result" style="display:none; margin-top: 30px;">
+            <h3 id="result-text" style="font-size: 2.5rem; font-weight: bold;"></h3>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    $('.image-section').hide();
+    
+    $("#imageUpload").change(function () {
+        $('.image-section').fadeIn();
+        $('#result').hide();
+        var reader = new FileReader();
+        reader.onload = function (e) { $('#imagePreview').attr('src', e.target.result); }
+        if(this.files[0]) reader.readAsDataURL(this.files[0]);
+    });
+
+    $('#btn-predict').click(function () {
+        var form_data = new FormData($('#upload-file')[0]);
+        $('.loader-container').css('display', 'flex'); // Show Loader
+        
+        $.ajax({
+            type: 'POST', url: '/predict_class', data: form_data,
+            contentType: false, cache: false, processData: false,
+            success: function (data) {
+                $('.loader-container').hide();
+                $('#result').fadeIn();
+                var color = data.result === 'Pneumonia' ? '#ff0055' : '#00ff88';
+                $('#result-text').text(data.result).css('color', color);
+            },
+        });
+    });
+});
+</script>
+{% endblock %}

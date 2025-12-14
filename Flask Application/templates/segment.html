@@ -1,0 +1,82 @@
+{% extends "import.html" %} 
+{% block content %}
+<center>
+    <br><a href="/" class="btn btn-secondary">← Back to Home</a><br>
+    <h2>Module 2: Lesion Segmentation</h2><br>
+
+    <form id="upload-file" method="post" enctype="multipart/form-data">
+         <input type="file" name="file" class="btn btn-warning" id="imageUpload" accept=".png, .jpg, .jpeg">
+    </form>
+
+    <div class="row" style="margin-top:30px;">
+        <div class="col-md-6">
+            <div class="image-section" style="display:none;">
+                <h4>Input X-Ray</h4>
+                <img id="imagePreview" src="#" style="width:300px;height:300px;"/><br><br>
+                <button type="button" class="btn btn-danger btn-lg" id="btn-predict">Run Segmentation</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div id="result-section" style="display:none;">
+                <h4>Segmented Output</h4>
+                <img id="segmentPreview" src="#" style="width:300px;height:300px; border: 2px solid green;">
+                <p id="text-msg"></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loader" style="display:none;"></div>
+</center>
+
+<script>
+$(document).ready(function () {
+    $('.image-section').hide();
+    $('.loader').hide();
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr('src', e.target.result);
+                $('#imagePreview').hide().fadeIn(650);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#imageUpload").change(function () {
+        $('.image-section').show();
+        $('#result-section').hide();
+        readURL(this);
+    });
+
+    $('#btn-predict').click(function () {
+        var form_data = new FormData($('#upload-file')[0]);
+        $(this).hide();
+        $('.loader').show();
+
+        $.ajax({
+            type: 'POST',
+            url: '/predict_segment', // Calls the specific Segmentation API
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                $('.loader').hide();
+                $('#btn-predict').show();
+                $('#result-section').fadeIn(600);
+                
+                if(data.status === "normal") {
+                    $('#segmentPreview').hide();
+                    $('#text-msg').text(data.message).css('color', 'green');
+                } else {
+                    $('#segmentPreview').show();
+                    $('#segmentPreview').attr('src', data.image_url);
+                    $('#text-msg').text("Pathology Localized").css('color', 'red');
+                }
+            },
+        });
+    });
+});
+</script>
+{% endblock %}

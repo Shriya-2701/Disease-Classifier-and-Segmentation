@@ -1,0 +1,71 @@
+{% extends "import.html" %} 
+{% block content %}
+
+<div class="loader-container">
+    <div class="loader"></div>
+    <div class="loading-text">Mapping Infection Vectors...</div>
+</div>
+
+<div class="container" style="margin-top: 50px;">
+    <a href="/" style="color: rgba(255,255,255,0.5); text-decoration: none;">← Return to Hub</a>
+
+    <div class="glass-card mt-4 p-5">
+        <div class="text-center mb-4">
+            <h2 style="color: #ff0055;">Module 3: Infection Localization</h2>
+            <p style="color: rgba(255,255,255,0.6);">Grad-CAM + Contour Analysis</p>
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center">
+                <form id="upload-file" method="post" enctype="multipart/form-data">
+                    <label class="btn-file" style="border-color: rgba(255, 0, 85, 0.3);">
+                        <span style="font-size: 2rem;">🦠</span><br>
+                        <span>Upload X-Ray</span>
+                        <input type="file" name="file" id="imageUpload" accept=".png, .jpg, .jpeg" style="display: none;">
+                    </label>
+                </form>
+                <div class="image-section mt-3" style="display:none;">
+                    <button type="button" class="btn-custom" id="btn-predict" style="border-color: #ff0055; color: #ff0055;">Scan for Infection</button>
+                </div>
+            </div>
+
+            <div class="col-md-6 text-center">
+                <div id="result-section" style="display:none;">
+                    <img id="segmentPreview" class="result-img" src="#" style="width: 300px; height: 300px; border: 3px solid #ff0055;">
+                    <p class="mt-3" style="color: #ff0055; letter-spacing: 2px;">PATHOLOGY FOUND</p>
+                </div>
+                <div id="placeholder" style="width: 300px; height: 300px; border: 2px dashed rgba(255,255,255,0.1); margin: 0 auto; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.2);">
+                    Output will appear here
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    $('.image-section').hide();
+    
+    $("#imageUpload").change(function () {
+        $('.image-section').fadeIn();
+        $('#result-section').hide(); $('#placeholder').show();
+    });
+
+    $('#btn-predict').click(function () {
+        var form_data = new FormData($('#upload-file')[0]);
+        $('.loader-container').css('display', 'flex'); 
+        
+        $.ajax({
+            type: 'POST', url: '/predict_infection', data: form_data,
+            contentType: false, cache: false, processData: false,
+            success: function (data) {
+                $('.loader-container').hide();
+                $('#placeholder').hide();
+                $('#result-section').fadeIn();
+                $('#segmentPreview').attr('src', data.image_url);
+            },
+        });
+    });
+});
+</script>
+{% endblock %}
